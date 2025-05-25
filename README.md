@@ -18,7 +18,7 @@ We asked Google AI Mode and ChatGPT the same 132 product questions, 3 times each
 - **132 query variations** from 33 core product searches
 - **Complete source citations** preserved
 
-**[📁 Browse Dataset →](experiments/consumer-products/)** | **[📊 View Analysis →](https://amplifying.ai/research/ai-product-bench/)**
+**[📁 Browse Dataset →](experiments/consumer-products/)** | **[📊 View Analysis →](https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt)**
 
 ## 🔍 Key Findings
 
@@ -29,7 +29,7 @@ Consistency Analysis:
 - Source citation rates: Google (99.7%) vs ChatGPT (35.9%)
 ```
 
-[**Full analysis report →**](experiments/consumer-products/README.md)
+[**Full analysis report →**](experiments/consumer-products/README.md) | [**Interactive dashboard →**](https://amplifying.ai/research/consumer-products)
 
 ## 📁 Repository Structure
 
