@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Product Recommendation Analysis - Amplifying</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .hover-scale {
+            transition: transform 0.2s;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .brand-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .google-brand {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .chatgpt-brand {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        .violation-card {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .tab-active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+        }
+        .product-card {
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-left: 3px solid transparent;
+        }
+        .product-card.google {
+            border-left-color: #4285f4;
+        }
+        .product-card.chatgpt {
+            border-left-color: #10a37f;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .source-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            margin: 0.125rem;
+        }
+        .consistency-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+        .consistency-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        .neural-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='neural' x='0' y='0' width='50' height='50' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='10' cy='10' r='1.5' fill='%236366f1' opacity='0.3'/%3E%3Ccircle cx='40' cy='25' r='1' fill='%238b5cf6' opacity='0.2'/%3E%3Ccircle cx='25' cy='40' r='1.2' fill='%2306b6d4' opacity='0.25'/%3E%3Cline x1='10' y1='10' x2='40' y2='25' stroke='%236366f1' strokeWidth='0.5' opacity='0.1'/%3E%3Cline x1='40' y1='25' x2='25' y2='40' stroke='%238b5cf6' strokeWidth='0.5' opacity='0.1'/%3E%3Cline x1='10' y1='10' x2='25' y2='40' stroke='%2306b6d4' strokeWidth='0.5' opacity='0.08'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23neural)'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative">
+    <!-- Neural network pattern background -->
+    <div class="absolute inset-0 neural-bg"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-white/20 bg-white/70 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-semibold text-gray-900">Amplifying</span>
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200 rounded-full">
+                        Beta
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/blog" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-lg transition-colors">
+                        <i class="fas fa-file-alt w-4 h-4 mr-2"></i>
+                        Blog
+                    </a>
+                    <a href="https://github.com/amplifying-ai" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white/50 rounded-lg transition-colors">
+                        <i class="fab fa-github w-4 h-4 mr-2"></i>
+                        Github
+                    </a>
+                    <a href="https://app.amplifying.ai" class="px-4 py-2 text-sm bg-gray-900 hover:bg-gray-800 text-white rounded-lg shadow-lg transition-colors">
+                        Sign in
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-6 lg:px-12 pt-8 pb-4 relative z-10">
+        <!-- Status indicator -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-2 bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-full px-4 py-2 shadow-sm">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-sm font-medium text-green-700">
+                    Analysis Complete
+                </span>
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-bold text-gray-900">3,806</div>
+                <div class="text-sm text-gray-600">Total Products Analyzed</div>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                AI Product Recommendation Analysis
+            </h1>
+            <p class="text-gray-600 mb-4">
+                Analysis of 792 AI responses across 132 product queries from ChatGPT and Google AI Mode
+            </p>
+            
+            <!-- Research Links -->
+            <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                <a href="https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt" 
+                   target="_blank" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    Read the full writeup
+                    <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                </a>
+                <a href="https://github.com/amplifying-ai/ai-product-bench" 
+                   target="_blank" 
+                   class="inline-flex items-center px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg border border-gray-200 transition-colors">
+                    <i class="fab fa-github mr-2"></i>
+                    View dataset & code
+                    <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white/70 backdrop-blur-md shadow-sm sticky top-20 z-40 border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="flex items-center justify-between h-16">
+                <!-- Desktop Menu - Existing Tabs -->
+                <div class="hidden md:flex md:space-x-8">
+                    <button class="tab py-4 px-2 font-medium tab-active" onclick="showSection('overview')">
+                        <i class="fas fa-chart-line mr-2"></i>Overview
+                    </button>
+                    <button class="tab py-4 px-2 font-medium" onclick="showSection('consistency')">
+                        <i class="fas fa-sync mr-2"></i>Consistency Analysis
+                    </button>
+                    <button class="tab py-4 px-2 font-medium" onclick="showSection('citations')">
+                        <i class="fas fa-link mr-2"></i>Citations & Links
+                    </button>
+                    <button class="tab py-4 px-2 font-medium" onclick="showSection('brands')">
+                        <i class="fas fa-tags mr-2"></i>Brand Analysis
+                    </button>
+                    <button class="tab py-4 px-2 font-medium" onclick="showSection('queries')">
+                        <i class="fas fa-search mr-2"></i>Query Explorer
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center"> <!-- Ensures button is on the right on mobile -->
+                    <button id="mobileMenuButton" class="text-gray-700 hover:text-gray-900 focus:outline-none focus:text-gray-900 p-2">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Menu - Dropdown -->
+            <div id="mobileMenu" class="md:hidden hidden pb-4">
+                <a href="#" class="tab block py-3 px-3 text-sm hover:bg-gray-100 rounded-md tab-active" onclick="showSectionAndToggleMenu('overview')">
+                    <i class="fas fa-chart-line mr-2 w-5 text-center"></i>Overview
+                </a>
+                <a href="#" class="tab block py-3 px-3 text-sm hover:bg-gray-100 rounded-md" onclick="showSectionAndToggleMenu('consistency')">
+                    <i class="fas fa-sync mr-2 w-5 text-center"></i>Consistency Analysis
+                </a>
+                <a href="#" class="tab block py-3 px-3 text-sm hover:bg-gray-100 rounded-md" onclick="showSectionAndToggleMenu('citations')">
+                    <i class="fas fa-link mr-2 w-5 text-center"></i>Citations & Links
+                </a>
+                <a href="#" class="tab block py-3 px-3 text-sm hover:bg-gray-100 rounded-md" onclick="showSectionAndToggleMenu('brands')">
+                    <i class="fas fa-tags mr-2 w-5 text-center"></i>Brand Analysis
+                </a>
+                <a href="#" class="tab block py-3 px-3 text-sm hover:bg-gray-100 rounded-md" onclick="showSectionAndToggleMenu('queries')">
+                    <i class="fas fa-search mr-2 w-5 text-center"></i>Query Explorer
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-8 relative z-10">
+        <!-- Loading State -->
+        <div id="loading" class="flex items-center justify-center py-20">
+            <div class="text-center">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-lg font-medium text-gray-900 mb-2">Loading analysis data...</p>
+                <p class="text-sm text-gray-600">This may take a few moments for large datasets</p>
+                <div class="mt-4 flex justify-center space-x-2">
+                    <div class="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Section -->
+        <section id="overview" class="content-section hidden">
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Queries</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalQueries">132</p>
+                        </div>
+                        <i class="fas fa-question-circle text-3xl text-indigo-500"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Responses</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalResponses">792</p>
+                        </div>
+                        <i class="fas fa-comments text-3xl text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Products Found</p>
+                            <p class="text-3xl font-bold text-gray-800" id="totalProducts">3,806</p>
+                        </div>
+                        <i class="fas fa-shopping-cart text-3xl text-green-500"></i>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Price Violations</p>
+                            <p class="text-3xl font-bold text-red-600" id="priceViolations">38</p>
+                        </div>
+                        <i class="fas fa-dollar-sign text-3xl text-red-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Comparison -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600">
+                        <i class="fab fa-google mr-2"></i>Google AI Mode
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Response Rate</span>
+                            <span class="font-bold" id="googleResponseRate">99.7%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">With Sources</span>
+                            <span class="font-bold" id="googleSourceRate">99.7%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Consistency Rate</span>
+                            <span class="font-bold text-orange-600" id="googleConsistency">64.4%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Top Product Changes</span>
+                            <span class="font-bold text-red-600" id="googleTopChanges">56.8%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-4 text-green-600">
+                        <i class="fas fa-robot mr-2"></i>ChatGPT
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Response Rate</span>
+                            <span class="font-bold" id="chatgptResponseRate">97.5%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">With Sources</span>
+                            <span class="font-bold text-red-600" id="chatgptSourceRate">35.9%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">From Training Data</span>
+                            <span class="font-bold text-orange-600" id="chatgptTraining">64.1%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Consistency Rate</span>
+                            <span class="font-bold text-red-600" id="chatgptConsistency">8.3%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Top Product Changes</span>
+                            <span class="font-bold text-red-600" id="chatgptTopChanges">94.7%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="stat-card">
+                    <h3 class="text-lg font-bold mb-4">Category Distribution</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-lg font-bold mb-4">Source Domains</h3>
+                    <canvas id="sourceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Research Highlight -->
+            <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-microscope text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Deep Dive Analysis Available</h3>
+                        <p class="text-gray-700 mb-4">
+                            This interactive dashboard shows just the surface. We've published a comprehensive analysis 
+                            of why AI product recommendations keep changing, plus made all our data and methodology 
+                            available as an open dataset.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a href="https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt" 
+                               target="_blank" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                                <i class="fas fa-file-alt mr-2"></i>
+                                Read Full Analysis
+                                <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+                            </a>
+                            <a href="https://github.com/amplifying-ai/ai-product-bench" 
+                               target="_blank" 
+                               class="inline-flex items-center px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg transition-colors">
+                                <i class="fab fa-github mr-2"></i>
+                                Access Open Dataset
+                                <i class="fas fa-external-link-alt ml-2 text-sm"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Consistency Analysis Section -->
+        <section id="consistency" class="content-section hidden">
+            <div class="stat-card mb-8">
+                <h2 class="text-2xl font-bold mb-6">Within-Model Consistency Analysis</h2>
+                
+                <!-- Google AI Mode Consistency -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">Google AI Mode</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-4 bg-red-50 rounded-lg">
+                            <div class="text-3xl font-bold text-red-600" id="googleNoOverlap">37.1%</div>
+                            <div class="text-sm text-gray-600">Complete Inconsistency</div>
+                            <div class="text-xs text-gray-500">(0% product overlap)</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-lg">
+                            <div class="text-3xl font-bold text-orange-600" id="googlePartialOverlap">40.9%</div>
+                            <div class="text-sm text-gray-600">Partial Consistency</div>
+                            <div class="text-xs text-gray-500">(<50% overlap)</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-3xl font-bold text-green-600" id="googleHighOverlap">22.0%</div>
+                            <div class="text-sm text-gray-600">High Consistency</div>
+                            <div class="text-xs text-gray-500">(≥50% overlap)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Consistency Distribution</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="consistency-bar">
+                            <div class="flex h-full">
+                                <div class="bg-red-500 consistency-fill" id="googleRedBar" style="width: 37.1%"></div>
+                                <div class="bg-orange-500 consistency-fill" id="googleOrangeBar" style="width: 40.9%"></div>
+                                <div class="bg-green-500 consistency-fill" id="googleGreenBar" style="width: 22.0%"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            Top product changes <span id="googleTopChangeRate" class="font-bold">83.3%</span> of the time
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            Top 3 products mix changes <span id="googleTopMixChangeRate" class="font-bold">-</span> of the time
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ChatGPT Consistency -->
+                <div class="mb-8 border-t pt-6">
+                    <h3 class="text-xl font-semibold mb-4 text-green-600">ChatGPT</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="text-center p-4 bg-red-50 rounded-lg">
+                            <div class="text-3xl font-bold text-red-600" id="chatgptNoOverlap">72.7%</div>
+                            <div class="text-sm text-gray-600">Complete Inconsistency</div>
+                            <div class="text-xs text-gray-500">(0% product overlap)</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-lg">
+                            <div class="text-3xl font-bold text-orange-600" id="chatgptPartialOverlap">26.5%</div>
+                            <div class="text-sm text-gray-600">Partial Consistency</div>
+                            <div class="text-xs text-gray-500">(<50% overlap)</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-3xl font-bold text-green-600" id="chatgptHighOverlap">0.8%</div>
+                            <div class="text-sm text-gray-600">High Consistency</div>
+                            <div class="text-xs text-gray-500">(≥50% overlap)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>Consistency Distribution</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="consistency-bar">
+                            <div class="flex h-full">
+                                <div class="bg-red-500 consistency-fill" id="chatgptRedBar" style="width: 72.7%"></div>
+                                <div class="bg-orange-500 consistency-fill" id="chatgptOrangeBar" style="width: 26.5%"></div>
+                                <div class="bg-green-500 consistency-fill" id="chatgptGreenBar" style="width: 0.8%"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            Top product changes <span id="chatgptTopChangeRate" class="font-bold">96.2%</span> of the time
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            Top 3 products mix changes <span id="chatgptTopMixChangeRate" class="font-bold">-</span> of the time
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Source Type Breakdown -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold mb-4">Response Source Breakdown</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                            <h4 class="text-md font-semibold text-blue-800 mb-4">
+                                <i class="fab fa-google mr-2"></i>Google AI Mode
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-link text-blue-600 mr-2"></i>
+                                        <span class="text-gray-700">With External Sources</span>
+                                    </div>
+                                    <span class="font-bold text-blue-700">99.7%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-brain text-orange-600 mr-2"></i>
+                                        <span class="text-gray-700">From Training Data</span>
+                                    </div>
+                                    <span class="font-bold text-orange-700">0.3%</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-3">Google AI Mode almost always provides external sources</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                            <h4 class="text-md font-semibold text-green-800 mb-4">
+                                <i class="fas fa-robot mr-2"></i>ChatGPT
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-link text-green-600 mr-2"></i>
+                                        <span class="text-gray-700">With External Sources</span>
+                                    </div>
+                                    <span class="font-bold text-green-700" id="chatgptWithSourcesPercent">35.9%</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-brain text-orange-600 mr-2"></i>
+                                        <span class="text-gray-700">From Training Data</span>
+                                    </div>
+                                    <span class="font-bold text-orange-700" id="chatgptTrainingDataPercent">64.1%</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-3">ChatGPT relies heavily on training data for recommendations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold mb-4">Consistency by Source Type</h3>
+                    <div class="space-y-4">
+                        <!-- Google AI Mode Source Type -->
+                        <div>
+                            <h4 class="text-md font-medium text-blue-600 mb-2">Google AI Mode</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="googleConsistencyBySource">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <!-- ChatGPT Source Type -->
+                        <div>
+                            <h4 class="text-md font-medium text-green-600 mb-2">ChatGPT</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="chatgptConsistencyBySource">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-6 mt-6">
+                    <h3 class="text-lg font-semibold mb-4">Key Insights</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="font-medium">ChatGPT is Extremely Inconsistent</p>
+                                <p class="text-sm text-gray-600">ChatGPT disagrees with itself 73% of the time - ask the same question twice, get completely different products</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-chart-line text-orange-500 mt-1 mr-3"></i>
+                            <div>
+                                <p class="font-medium">Google Shows Moderate Consistency</p>
+                                <p class="text-sm text-gray-600">22% of Google queries have high product overlap between runs, vs. less than 1% for ChatGPT</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-sm text-yellow-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Cross-model comparison:</strong> The models disagree 44.7% of the time, which is actually better than ChatGPT's self-disagreement rate of 72.7%!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consistency Examples -->
+            <div class="stat-card">
+                <h3 class="text-xl font-bold mb-4">Inconsistency Examples</h3>
+                <div id="inconsistencyExamples" class="space-y-4">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Citations & Links Analysis Section -->
+        <section id="citations" class="content-section hidden">
+            <div class="stat-card mb-8">
+                <h2 class="text-2xl font-bold mb-6">Citations & Links Analysis</h2>
+                
+                <!-- Overall Statistics -->
+                <div class="grid md:grid-cols-5 gap-8 mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-2">Google AI Mode</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Responses with Links</span>
+                                <span class="font-bold" id="googleLinkCount">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Unique Domains</span>
+                                <span class="font-bold" id="googleDomainCount">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Avg Links/Response</span>
+                                <span class="font-bold" id="googleAvgLinks">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-900 mb-2">ChatGPT</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Responses with Links</span>
+                                <span class="font-bold" id="chatgptLinkCount">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Unique Domains</span>
+                                <span class="font-bold" id="chatgptDomainCount">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Avg Links/Response</span>
+                                <span class="font-bold" id="chatgptAvgLinks">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-purple-900 mb-2">Comparison</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Link Coverage Diff</span>
+                                <span class="font-bold" id="linkCoverageDiff">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Domain Overlap</span>
+                                <span class="font-bold" id="domainOverlap">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Most Cited Overall</span>
+                                <span class="font-bold text-sm" id="mostCitedDomain">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Domains Chart -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold mb-4">Top Cited Domains</h3>
+                    <canvas id="topDomainsChart" height="80"></canvas>
+                </div>
+                
+                <!-- Domain Lists by Model -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold mb-4 text-blue-600">
+                            <i class="fab fa-google mr-2"></i>Google AI Mode Top Sources
+                        </h3>
+                        <div id="googleTopDomains" class="space-y-2">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold mb-4 text-green-600">
+                            <i class="fas fa-robot mr-2"></i>ChatGPT Top Sources
+                        </h3>
+                        <div id="chatgptTopDomains" class="space-y-2">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Link Distribution Analysis -->
+            <div class="stat-card">
+                <h3 class="text-xl font-bold mb-4">Link Distribution by Query Type</h3>
+                <div id="linksByQueryType" class="space-y-4">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Brand Analysis Section -->
+        <section id="brands" class="content-section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-4 text-blue-600">
+                        <i class="fab fa-google mr-2"></i>Google AI Mode Top Brands
+                    </h3>
+                    <div id="googleBrands" class="space-y-2">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-xl font-bold mb-4 text-green-600">
+                        <i class="fas fa-robot mr-2"></i>ChatGPT Top Brands
+                    </h3>
+                    <div id="chatgptBrands" class="space-y-2">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Brand Comparison Chart -->
+            <div class="stat-card">
+                <h3 class="text-xl font-bold mb-4">Brand Preference Comparison</h3>
+                <canvas id="brandComparisonChart" height="100"></canvas>
+            </div>
+        </section>
+
+        <!-- Query Explorer Section -->
+        <section id="queries" class="content-section hidden">
+            <div class="stat-card mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">Query Explorer</h3>
+                    <div class="flex space-x-4">
+                        <input type="text" id="querySearch" placeholder="Search queries..." 
+                               class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select id="categoryFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="itemsPerPage" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="all" selected>Show All</option>
+                            <option value="10">10 per page</option>
+                            <option value="25">25 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Pagination Info and Controls -->
+                <div id="paginationInfo" class="flex items-center justify-between mb-4 text-sm text-gray-600">
+                    <div id="resultsInfo">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    <div id="paginationControls" class="flex items-center space-x-2">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="queryList" class="space-y-4">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Query Detail Modal -->
+            <div id="queryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+                <div class="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto relative z-[10000]">
+                    <div class="sticky top-0 bg-white border-b z-10 p-6 pb-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-bold" id="modalQueryText"></h3>
+                                <p class="text-sm text-gray-600 mt-1" id="modalQueryMeta"></p>
+                            </div>
+                            <button onclick="closeQueryModal()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="modalContent" class="p-6 pt-2 space-y-4">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/20 bg-white/50 backdrop-blur-sm relative z-10 mt-16">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12">
+            <div class="grid md:grid-cols-5 gap-8 mb-8">
+                <!-- Brand -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="text-xl font-semibold text-gray-900">Amplifying</span>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed max-w-md">
+                        Track what AI systems actually say about your brand. Built by a team who care about getting it right.
+                    </p>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">Product</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>
+                            <a href="https://app.amplifying.ai" class="hover:text-gray-900 transition-colors">
+                                AI Search Optimization
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/amplifying-ai" class="hover:text-gray-900 transition-colors">
+                                Research Suite
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">Company</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>
+                            <a href="/blog" class="hover:text-gray-900 transition-colors">
+                                Blog
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/amplifying-ai" class="hover:text-gray-900 transition-colors">
+                                Github
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://tally.so/r/3lZJAX" class="hover:text-gray-900 transition-colors">
+                                Contact
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://status.amplifying.ai" class="hover:text-gray-900 transition-colors">
+                                Status
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Research -->
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">This Research</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li>
+                            <a href="https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt" 
+                               target="_blank" 
+                               class="hover:text-gray-900 transition-colors">
+                                Full Analysis
+                                <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/amplifying-ai/ai-product-bench" 
+                               target="_blank" 
+                               class="hover:text-gray-900 transition-colors">
+                                Open Dataset
+                                <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/amplifying-ai/ai-product-bench#-citation" 
+                               target="_blank" 
+                               class="hover:text-gray-900 transition-colors">
+                                Cite This Work
+                                <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom bar -->
+            <div class="pt-8 border-t border-gray-200/50 flex flex-col sm:flex-row justify-between items-center">
+                <p class="text-sm text-gray-600 mb-4 sm:mb-0">
+                    © 2025 Amplifying. Built with curiosity and{" "}
+                    <a href="https://birdandbearcoffee.com" class="hover:text-gray-900 transition-colors underline">
+                        caffeine
+                    </a>
+                    .
+                </p>
+                <div class="flex items-center space-x-6 text-sm text-gray-600">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let globalData = null;
+
+        // Global pagination state
+        let currentPage = 1;
+        let itemsPerPage = 'all';
+        let filteredQuerySets = [];
+
+        // Load data on page load with retry mechanism
+        async function loadDataWithRetry(maxRetries = 3, timeout = 10000) {
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    console.log(`Data fetch attempt ${attempt}/${maxRetries}...`);
+                    
+                    // Create a timeout promise
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Request timeout')), timeout)
+                    );
+                    
+                    // Race between fetch and timeout
+                    const response = await Promise.race([
+                        fetch('./analysis.json'),
+                        timeoutPromise
+                    ]);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    console.log('Data fetch successful, parsing JSON...');
+                    globalData = await response.json();
+                    console.log('Data loaded successfully:', globalData);
+                    return globalData;
+                    
+                } catch (error) {
+                    console.error(`Attempt ${attempt} failed:`, error);
+                    
+                    if (attempt === maxRetries) {
+                        throw error;
+                    }
+                    
+                    // Wait before retry (exponential backoff)
+                    const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+                    console.log(`Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('Starting data fetch from /research/consumer-products/data.json...');
+                await loadDataWithRetry();
+                console.log('Data loaded successfully, globalData:', globalData);
+                console.log('globalData.queries exists:', !!globalData?.queries);
+                if (globalData?.queries) {
+                    console.log('Number of queries:', Object.keys(globalData.queries).length);
+                    console.log('Sample query object:', Object.entries(globalData.queries)[0]);
+                }
+                initializeDashboard();
+            } catch (error) {
+                console.error('Error loading data after all retries:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-red-600 font-medium text-lg mb-2">Error loading data</p>
+                        <p class="text-gray-600">Please refresh the page or check your connection.</p>
+                        <p class="text-sm text-gray-500 mt-2">Error: ${error.message}</p>
+                        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        });
+
+        function initializeDashboard() {
+            console.log('Initializing dashboard with data:', globalData);
+            document.getElementById('loading').classList.add('hidden');
+            
+            // Update overview stats
+            updateOverviewStats();
+            
+            // Initialize charts
+            initializeCategoryChart();
+            initializeSourceChart();
+            initializeBrandComparison();
+            
+            // Populate sections
+            populateBrands();
+            populateQueries();
+            populateInconsistencyExamples();
+            populateCitationsAnalysis();
+
+            // Setup mobile menu
+            setupMobileMenu();
+            
+            // Show overview by default
+            showSection('overview');
+        }
+
+        function updateOverviewStats() {
+            document.getElementById('totalQueries').textContent = globalData.metadata.total_queries;
+            document.getElementById('totalResponses').textContent = globalData.metadata.total_responses;
+            document.getElementById('totalProducts').textContent = globalData.metadata.total_products.toLocaleString();
+            document.getElementById('priceViolations').textContent = globalData.price_violations.length;
+            
+            // Update model-specific stats
+            const googleData = globalData.source_analysis['Google AI Mode'];
+            const chatgptData = globalData.source_analysis['ChatGPT'];
+            
+            // Google stats
+            if (googleData) {
+                const googleSourceRate = ((googleData.responses_with_sources / googleData.total_responses) * 100).toFixed(1);
+                document.getElementById('googleSourceRate').textContent = `${googleSourceRate}%`;
+                document.getElementById('googleResponseRate').textContent = `${((googleData.total_responses / 396) * 100).toFixed(1)}%`;
+            }
+            
+            // ChatGPT stats  
+            if (chatgptData) {
+                const chatgptSourceRate = ((chatgptData.responses_with_sources / chatgptData.total_responses) * 100).toFixed(1);
+                document.getElementById('chatgptSourceRate').textContent = `${chatgptSourceRate}%`;
+                document.getElementById('chatgptResponseRate').textContent = `${((chatgptData.total_responses / 396) * 100).toFixed(1)}%`;
+                document.getElementById('chatgptTraining').textContent = `${(100 - parseFloat(chatgptSourceRate)).toFixed(1)}%`;
+            }
+            
+            // Brand counts
+            const googleBrandCount = Object.keys(globalData.brand_analysis['Google AI Mode'] || {}).length;
+            const chatgptBrandCount = Object.keys(globalData.brand_analysis['ChatGPT'] || {}).length;
+            // Don't show chatgpt brands in overview - it's in the brand analysis section
+            // document.getElementById('chatgptBrands').textContent = chatgptBrandCount;
+            
+            // Consistency stats for both models
+            const googleConsistency = globalData.consistency_analysis['Google AI Mode'];
+            const chatgptConsistency = globalData.consistency_analysis['ChatGPT'];
+            
+            if (googleConsistency) {
+                const avgConsistency = (googleConsistency.avg_consistency * 100).toFixed(1);
+                document.getElementById('googleConsistency').textContent = `${avgConsistency}%`;
+                
+                // Update Google consistency breakdown
+                const googleNoOverlap = document.getElementById('googleNoOverlap');
+                const googleHighOverlap = document.getElementById('googleHighOverlap');
+                const googleTopChangeRate = document.getElementById('googleTopChangeRate');
+                
+                if (googleNoOverlap) {
+                    googleNoOverlap.textContent = `${googleConsistency.no_overlap_percentage || 37.1}%`;
+                }
+                if (googleHighOverlap) {
+                    googleHighOverlap.textContent = `${googleConsistency.high_overlap_percentage || 22.0}%`;
+                }
+                if (googleTopChangeRate) {
+                    googleTopChangeRate.textContent = `${googleConsistency.top_product_change_rate || 83.3}%`;
+                }
+                
+                const googleTopMixChangeRate = document.getElementById('googleTopMixChangeRate');
+                if (googleTopMixChangeRate && googleConsistency.top_products_mix_change_rate !== undefined) {
+                    googleTopMixChangeRate.textContent = `${googleConsistency.top_products_mix_change_rate}%`;
+                }
+                
+                // Calculate partial overlap
+                const noOverlap = googleConsistency.no_overlap_percentage || 37.1;
+                const highOverlap = googleConsistency.high_overlap_percentage || 22.0;
+                const partialOverlap = 100 - noOverlap - highOverlap;
+                const googlePartialOverlap = document.getElementById('googlePartialOverlap');
+                if (googlePartialOverlap) {
+                    googlePartialOverlap.textContent = `${partialOverlap.toFixed(1)}%`;
+                }
+                
+                // Update bars
+                const googleRedBar = document.getElementById('googleRedBar');
+                const googleOrangeBar = document.getElementById('googleOrangeBar');
+                const googleGreenBar = document.getElementById('googleGreenBar');
+                if (googleRedBar) googleRedBar.style.width = `${noOverlap}%`;
+                if (googleOrangeBar) googleOrangeBar.style.width = `${partialOverlap.toFixed(1)}%`;
+                if (googleGreenBar) googleGreenBar.style.width = `${highOverlap}%`;
+                
+                // Calculate top product changes (queries with 0% consistency)
+                const zeroConsistency = googleConsistency.consistency_distribution['0%'] || 0;
+                const totalAnalyzed = googleConsistency.queries_analyzed || 1;
+                const topChanges = ((zeroConsistency / totalAnalyzed) * 100).toFixed(1);
+                document.getElementById('googleTopChanges').textContent = `${topChanges}%`;
+                
+                // Update top product changes in consistency section
+                const topChangesSpan = document.getElementById('topProductChanges');
+                if (topChangesSpan) {
+                    topChangesSpan.textContent = `${topChanges}%`;
+                }
+            }
+            
+            if (chatgptConsistency) {
+                // Update ChatGPT consistency in overview
+                const chatgptAvgConsistency = (chatgptConsistency.avg_consistency * 100).toFixed(1);
+                const chatgptConsistencyEl = document.getElementById('chatgptConsistency');
+                if (chatgptConsistencyEl) {
+                    chatgptConsistencyEl.textContent = `${chatgptAvgConsistency}%`;
+                }
+                
+                // Update ChatGPT consistency breakdown
+                const chatgptNoOverlap = document.getElementById('chatgptNoOverlap');
+                const chatgptHighOverlap = document.getElementById('chatgptHighOverlap');
+                const chatgptTopChangeRate = document.getElementById('chatgptTopChangeRate');
+                
+                if (chatgptNoOverlap) {
+                    chatgptNoOverlap.textContent = `${chatgptConsistency.no_overlap_percentage || 72.7}%`;
+                }
+                if (chatgptHighOverlap) {
+                    chatgptHighOverlap.textContent = `${chatgptConsistency.high_overlap_percentage || 0.8}%`;
+                }
+                if (chatgptTopChangeRate) {
+                    chatgptTopChangeRate.textContent = `${chatgptConsistency.top_product_change_rate || 96.2}%`;
+                }
+                
+                const chatgptTopMixChangeRate = document.getElementById('chatgptTopMixChangeRate');
+                if (chatgptTopMixChangeRate && chatgptConsistency.top_products_mix_change_rate !== undefined) {
+                    chatgptTopMixChangeRate.textContent = `${chatgptConsistency.top_products_mix_change_rate}%`;
+                }
+                
+                // Calculate partial overlap
+                const noOverlap = chatgptConsistency.no_overlap_percentage || 72.7;
+                const highOverlap = chatgptConsistency.high_overlap_percentage || 0.8;
+                const partialOverlap = 100 - noOverlap - highOverlap;
+                const chatgptPartialOverlap = document.getElementById('chatgptPartialOverlap');
+                if (chatgptPartialOverlap) {
+                    chatgptPartialOverlap.textContent = `${partialOverlap.toFixed(1)}%`;
+                }
+                
+                // Update bars
+                const chatgptRedBar = document.getElementById('chatgptRedBar');
+                const chatgptOrangeBar = document.getElementById('chatgptOrangeBar');
+                const chatgptGreenBar = document.getElementById('chatgptGreenBar');
+                if (chatgptRedBar) chatgptRedBar.style.width = `${noOverlap}%`;
+                if (chatgptOrangeBar) chatgptOrangeBar.style.width = `${partialOverlap.toFixed(1)}%`;
+                if (chatgptGreenBar) chatgptGreenBar.style.width = `${highOverlap}%`;
+            }
+            
+            // Populate consistency by source type for Google
+            const googleConsistencyBySourceDiv = document.getElementById('googleConsistencyBySource');
+            if (googleConsistencyBySourceDiv && googleConsistency && googleConsistency.consistency_by_source) {
+                const withLinks = googleConsistency.consistency_by_source.with_links;
+                const withoutLinks = googleConsistency.consistency_by_source.without_links;
+                
+                googleConsistencyBySourceDiv.innerHTML = `
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-blue-900 mb-2">With External Sources</h4>
+                        <p class="text-3xl font-bold text-blue-600">${(withLinks.avg_consistency * 100).toFixed(1)}%</p>
+                        <p class="text-sm text-gray-600">${withLinks.count} query sets analyzed</p>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-orange-900 mb-2">From Training Data</h4>
+                        <p class="text-3xl font-bold text-orange-600">${withoutLinks.count > 0 ? (withoutLinks.avg_consistency * 100).toFixed(1) : 'N/A'}%</p>
+                        <p class="text-sm text-gray-600">${withoutLinks.count} query sets analyzed</p>
+                    </div>
+                `;
+            }
+            
+            // Populate consistency by source type for ChatGPT
+            const chatgptConsistencyBySourceDiv = document.getElementById('chatgptConsistencyBySource');
+            if (chatgptConsistencyBySourceDiv && chatgptConsistency && chatgptConsistency.consistency_by_source) {
+                const withLinks = chatgptConsistency.consistency_by_source.with_links;
+                const withoutLinks = chatgptConsistency.consistency_by_source.without_links;
+                
+                chatgptConsistencyBySourceDiv.innerHTML = `
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-green-900 mb-2">With External Sources</h4>
+                        <p class="text-3xl font-bold text-green-600">${withLinks.count > 0 ? (withLinks.avg_consistency * 100).toFixed(1) : 'N/A'}%</p>
+                        <p class="text-sm text-gray-600">${withLinks.count} query sets analyzed</p>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-orange-900 mb-2">From Training Data</h4>
+                        <p class="text-3xl font-bold text-orange-600">${withoutLinks.count > 0 ? (withoutLinks.avg_consistency * 100).toFixed(1) : 'N/A'}%</p>
+                        <p class="text-sm text-gray-600">${withoutLinks.count} query sets analyzed</p>
+                    </div>
+                `;
+            }
+            
+            // For ChatGPT, add training data percentage
+            if (chatgptData) {
+                const chatgptSourceRate = ((chatgptData.responses_with_sources / chatgptData.total_responses) * 100).toFixed(1);
+                const chatgptTrainingRate = chatgptData.training_percentage || (100 - parseFloat(chatgptSourceRate));
+                document.getElementById('chatgptTraining').textContent = `${chatgptTrainingRate.toFixed(1)}%`;
+                
+                // Update source breakdown percentages
+                const chatgptWithSourcesPercentEl = document.getElementById('chatgptWithSourcesPercent');
+                const chatgptTrainingDataPercentEl = document.getElementById('chatgptTrainingDataPercent');
+                if (chatgptWithSourcesPercentEl) {
+                    chatgptWithSourcesPercentEl.textContent = `${chatgptSourceRate}%`;
+                }
+                if (chatgptTrainingDataPercentEl) {
+                    chatgptTrainingDataPercentEl.textContent = `${chatgptTrainingRate.toFixed(1)}%`;
+                }
+            }
+        }
+
+        function setupMobileMenu() {
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+        }
+
+        function showSection(sectionName) {
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show the selected content section
+            const activeSection = document.getElementById(sectionName);
+            if (activeSection) {
+                activeSection.classList.remove('hidden');
+            }
+
+            // Update active tab state for ALL tabs (desktop and mobile)
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('tab-active'); // Remove first
+                const onclickAttr = tab.getAttribute('onclick');
+                if (onclickAttr && (onclickAttr.includes(`showSection('${sectionName}')`) || onclickAttr.includes(`showSectionAndToggleMenu('${sectionName}')`))) {
+                    tab.classList.add('tab-active'); // Add if it matches
+                }
+            });
+            
+            // Initialize section-specific content if needed
+            if (sectionName === 'citations' && globalData && !document.getElementById('googleTopDomains').innerHTML) {
+                populateCitationsAnalysis();
+            }
+        }
+
+        function showSectionAndToggleMenu(sectionName) {
+            showSection(sectionName); // This will handle active tab state
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden'); // Hide menu after selection
+            }
+        }
+
+        function initializeCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const categories = Object.keys(globalData.category_analysis);
+            const responseCounts = categories.map(cat => globalData.category_analysis[cat].total_responses);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: responseCounts,
+                        backgroundColor: [
+                            '#4285f4', '#ea4335', '#fbbc04', '#34a853',
+                            '#9333ea', '#f59e0b', '#10b981', '#ef4444',
+                            '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeSourceChart() {
+            const ctx = document.getElementById('sourceChart').getContext('2d');
+            
+            // Get actual data from source analysis
+            const googleData = globalData.source_analysis['Google AI Mode'];
+            const chatgptData = globalData.source_analysis['ChatGPT'];
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Google AI Mode', 'ChatGPT'],
+                    datasets: [{
+                        label: 'With Sources',
+                        data: [
+                            googleData?.responses_with_sources || 0,
+                            chatgptData?.responses_with_sources || 0
+                        ],
+                        backgroundColor: ['#4285f4', '#10a37f']
+                    }, {
+                        label: 'Without Sources',
+                        data: [
+                            (googleData?.total_responses || 0) - (googleData?.responses_with_sources || 0),
+                            (chatgptData?.total_responses || 0) - (chatgptData?.responses_with_sources || 0)
+                        ],
+                        backgroundColor: ['#93c5fd', '#86efac']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true }
+                    }
+                }
+            });
+        }
+
+        function initializeBrandComparison() {
+            const ctx = document.getElementById('brandComparisonChart').getContext('2d');
+            
+            // Get top 10 brands from each model
+            const googleBrands = Object.entries(globalData.brand_analysis['Google AI Mode'] || {})
+                .filter(([brand, count]) => brand && brand.trim() !== '')
+                .slice(0, 10);
+            const chatgptBrands = Object.entries(globalData.brand_analysis['ChatGPT'] || {})
+                .filter(([brand, count]) => brand && brand.trim() !== '')
+                .slice(0, 10);
+            
+            // Get all unique brands
+            const allBrands = new Set([
+                ...googleBrands.map(([brand]) => brand),
+                ...chatgptBrands.map(([brand]) => brand)
+            ]);
+            
+            const brandMap = new Map([...googleBrands, ...chatgptBrands]);
+            const labels = Array.from(allBrands).slice(0, 15);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Google AI Mode',
+                        data: labels.map(brand => {
+                            const found = googleBrands.find(([b]) => b === brand);
+                            return found ? found[1] : 0;
+                        }),
+                        backgroundColor: '#4285f4'
+                    }, {
+                        label: 'ChatGPT',
+                        data: labels.map(brand => {
+                            const found = chatgptBrands.find(([b]) => b === brand);
+                            return found ? found[1] : 0;
+                        }),
+                        backgroundColor: '#10a37f'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function populateBrands() {
+            const googleBrandsDiv = document.getElementById('googleBrands');
+            const chatgptBrandsDiv = document.getElementById('chatgptBrands');
+            
+            // Clear existing content
+            googleBrandsDiv.innerHTML = '';
+            chatgptBrandsDiv.innerHTML = '';
+            
+            // Google brands
+            if (globalData.brand_analysis && globalData.brand_analysis['Google AI Mode']) {
+                Object.entries(globalData.brand_analysis['Google AI Mode'])
+                    .filter(([brand, count]) => brand && brand.trim() !== '') // Filter out null/empty brands
+                    .slice(0, 10)
+                    .forEach(([brand, count], index) => {
+                        googleBrandsDiv.innerHTML += `
+                            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                                <span class="font-medium">${index + 1}. ${brand}</span>
+                                <span class="text-gray-600">${count} recommendations</span>
+                            </div>
+                        `;
+                    });
+            }
+            
+            // ChatGPT brands
+            const chatgptBrandData = globalData.brand_analysis['ChatGPT'];
+            if (chatgptBrandData) {
+                Object.entries(chatgptBrandData)
+                    .filter(([brand, count]) => brand && brand.trim() !== '') // Skip empty brands
+                    .slice(0, 10)
+                    .forEach(([brand, count], index) => {
+                        chatgptBrandsDiv.innerHTML += `
+                            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                                <span class="font-medium">${index + 1}. ${brand}</span>
+                                <span class="text-gray-600">${count} recommendations</span>
+                            </div>
+                        `;
+                    });
+            }
+        }
+
+        function getQueryType(queryText) {
+            const text = queryText.toLowerCase();
+            
+            // Search-based patterns
+            const searchPatterns = [
+                /^(best|top|good|great)\s+/,
+                /^what('s|\s+is)\s+the\s+best/,
+                /^(recommend|suggest)\s+/,
+                /^\w+\s+(under|below|less than)\s+\$/,
+                /^(laptop|phone|tv|camera|headphones|speaker)/,
+                /\b(product|item|device|gadget)\b/
+            ];
+            
+            // Conversational patterns
+            const conversationalPatterns = [
+                /^(i'm|i am)\s+(looking|shopping|searching)/,
+                /^(can you|could you|would you)/,
+                /^(help me|assist me)/,
+                /^(i need|i want|i'd like)/,
+                /\b(please|thanks|thank you)\b/,
+                /\?$/
+            ];
+            
+            const isSearch = searchPatterns.some(pattern => pattern.test(text));
+            const isConversational = conversationalPatterns.some(pattern => pattern.test(text));
+            
+            if (isConversational && !isSearch) return 'conversational';
+            if (isSearch && !isConversational) return 'search';
+            if (isConversational && isSearch) return 'hybrid';
+            return 'neutral';
+        }
+
+        function getQueryTypeIcon(type) {
+            switch(type) {
+                case 'search': return '<i class="fas fa-search text-blue-500" title="Search-based query"></i>';
+                case 'conversational': return '<i class="fas fa-comments text-green-500" title="Conversational query"></i>';
+                case 'hybrid': return '<i class="fas fa-exchange-alt text-purple-500" title="Hybrid query"></i>';
+                default: return '<i class="fas fa-circle text-gray-400" title="Neutral query"></i>';
+            }
+        }
+
+        function getQueryTypeBadge(type) {
+            const badges = {
+                'search': '<span class="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Search</span>',
+                'conversational': '<span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Conversational</span>',
+                'hybrid': '<span class="inline-block px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">Hybrid</span>',
+                'neutral': '<span class="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Neutral</span>'
+            };
+            return badges[type] || badges['neutral'];
+        }
+
+        function populateQueries() {
+            const queryList = document.getElementById('queryList');
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            // Populate category filter
+            const categories = new Set();
+            Object.values(globalData.queries).forEach(query => {
+                if (query.category) categories.add(query.category);
+            });
+            
+            categories.forEach(cat => {
+                categoryFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            
+            // Setup pagination controls
+            setupPaginationControls();
+            
+            // Display queries immediately
+            displayQueries('', '');
+        }
+
+        function setupPaginationControls() {
+            const itemsPerPageSelect = document.getElementById('itemsPerPage');
+            
+            if (itemsPerPageSelect) {
+                itemsPerPageSelect.addEventListener('change', (e) => {
+                    itemsPerPage = e.target.value;
+                    currentPage = 1; // Reset to first page
+                    const searchTerm = document.getElementById('querySearch').value;
+                    const category = document.getElementById('categoryFilter').value;
+                    displayQueries(searchTerm, category);
+                });
+            }
+        }
+
+        function displayQueries(searchTerm = '', category = '') {
+            const queryList = document.getElementById('queryList');
+            queryList.innerHTML = '';
+            
+            // Group queries by query set
+            const querySetGroups = {};
+            Object.entries(globalData.queries).forEach(([queryId, query]) => {
+                const querySetId = query.query_set_id || 'unknown';
+                if (!querySetGroups[querySetId]) {
+                    querySetGroups[querySetId] = {
+                        category: query.category,
+                        queries: []
+                    };
+                }
+                querySetGroups[querySetId].queries.push({id: queryId, ...query});
+            });
+            
+            // Filter query sets
+            filteredQuerySets = Object.entries(querySetGroups)
+                .filter(([setId, group]) => {
+                    const matchesCategory = !category || group.category === category;
+                    const matchesSearch = !searchTerm || 
+                        group.queries.some(q => (q.prompt_text || q.text || q.query || '').toLowerCase().includes(searchTerm.toLowerCase()));
+                    return matchesSearch && matchesCategory;
+                });
+            
+            // Calculate pagination
+            const totalItems = filteredQuerySets.length;
+            let itemsToShow, totalPages, startIndex, endIndex;
+            
+            if (itemsPerPage === 'all') {
+                itemsToShow = filteredQuerySets;
+                totalPages = 1;
+                startIndex = 0;
+                endIndex = totalItems;
+            } else {
+                const perPage = parseInt(itemsPerPage);
+                totalPages = Math.ceil(totalItems / perPage);
+                startIndex = (currentPage - 1) * perPage;
+                endIndex = Math.min(startIndex + perPage, totalItems);
+                itemsToShow = filteredQuerySets.slice(startIndex, endIndex);
+            }
+            
+            // Update pagination info
+            updatePaginationInfo(startIndex + 1, endIndex, totalItems, currentPage, totalPages);
+            
+            // Display query sets for current page
+            itemsToShow.forEach(([querySetId, group]) => {
+                const totalGoogle = group.queries.reduce((sum, q) => 
+                    sum + (q.responses_by_model['Google AI Mode']?.products_found.length || 0), 0);
+                const totalChatGPT = group.queries.reduce((sum, q) => 
+                    sum + (q.responses_by_model['ChatGPT']?.products_found.length || 0), 0);
+                
+                // Analyze query types in this set
+                const queryTypes = group.queries.map(q => q.query_type || 'unknown');
+                const typeDistribution = queryTypes.reduce((acc, type) => {
+                    acc[type] = (acc[type] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                queryList.innerHTML += `
+                    <div class="border-2 border-purple-200 rounded-lg p-4 bg-purple-50">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <h4 class="font-bold text-purple-800">Query Set ${querySetId}</h4>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="text-sm text-gray-600">
+                                        <i class="fas fa-tag mr-1"></i>${group.category || 'Uncategorized'} 
+                                        • ${group.queries.length} queries
+                                    </span>
+                                    <div class="flex space-x-1">
+                                        ${Object.entries(typeDistribution).map(([type, count]) => 
+                                            `${getQueryTypeBadge(type)} ${count > 1 ? `<span class="text-xs text-gray-500">×${count}</span>` : ''}`
+                                        ).join(' ')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-blue-600 font-medium">${totalGoogle}</span> / 
+                                <span class="text-green-600 font-medium">${totalChatGPT}</span> total products
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            ${group.queries.map(query => {
+                                const googleProducts = query.responses_by_model['Google AI Mode']?.products_found.length || 0;
+                                const chatgptProducts = query.responses_by_model['ChatGPT']?.products_found.length || 0;
+                                const queryType = query.query_type || getQueryType(query.prompt_text || query.text || query.query || '');
+                                
+                                // Check if responses have sources
+                                const googleHasSources = query.responses_by_model['Google AI Mode']?.links?.length > 0;
+                                const chatgptHasSources = query.responses_by_model['ChatGPT']?.links?.length > 0;
+                                
+                                return `
+                                    <div class="bg-white rounded-lg p-3 hover:shadow-md cursor-pointer transition-shadow" 
+                                         onclick="showQueryDetail('${query.id}')">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <div class="flex items-start space-x-2">
+                                                    ${getQueryTypeIcon(queryType)}
+                                                    <div class="flex-1">
+                                                        <p class="font-medium text-gray-800">${query.prompt_text || query.text || query.query || 'Query text not available'}</p>
+                                                        <div class="flex items-center space-x-2 mt-1">
+                                                            ${getQueryTypeBadge(queryType)}
+                                                            ${query.price_range.max ? `
+                                                                <span class="text-xs text-gray-500">
+                                                                    <i class="fas fa-dollar-sign mr-1"></i>Max: $${query.price_range.max}
+                                                                </span>
+                                                            ` : ''}
+                                                        </div>
+                                                        <div class="flex items-center space-x-3 mt-2 text-xs">
+                                                            <div class="flex items-center space-x-1">
+                                                                <i class="fab fa-google text-blue-500"></i>
+                                                                <span class="text-gray-600">${googleProducts} products</span>
+                                                                ${googleHasSources ? 
+                                                                    '<i class="fas fa-link text-blue-400 ml-1" title="Has sources"></i>' : 
+                                                                    '<i class="fas fa-brain text-gray-400 ml-1" title="No sources"></i>'
+                                                                }
+                                                            </div>
+                                                            <div class="flex items-center space-x-1">
+                                                                <i class="fas fa-robot text-green-500"></i>
+                                                                <span class="text-gray-600">${chatgptProducts} products</span>
+                                                                ${chatgptHasSources ? 
+                                                                    '<i class="fas fa-link text-green-400 ml-1" title="Has sources"></i>' : 
+                                                                    '<i class="fas fa-brain text-orange-400 ml-1" title="From training data"></i>'
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function updatePaginationInfo(startItem, endItem, totalItems, currentPageNum, totalPagesNum) {
+            const resultsInfo = document.getElementById('resultsInfo');
+            const paginationControls = document.getElementById('paginationControls');
+            
+            if (resultsInfo) {
+                if (itemsPerPage === 'all') {
+                    resultsInfo.innerHTML = `Showing all ${totalItems} query sets`;
+                } else {
+                    resultsInfo.innerHTML = `Showing ${startItem}-${endItem} of ${totalItems} query sets`;
+                }
+            }
+            
+            if (paginationControls && itemsPerPage !== 'all' && totalPagesNum > 1) {
+                let paginationHTML = '';
+                
+                // Previous button
+                if (currentPageNum > 1) {
+                    paginationHTML += `
+                        <button onclick="changePage(${currentPageNum - 1})" 
+                                class="px-3 py-1 border rounded hover:bg-gray-100">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    `;
+                }
+                
+                // Page numbers (show up to 5 pages around current)
+                const startPage = Math.max(1, currentPageNum - 2);
+                const endPage = Math.min(totalPagesNum, currentPageNum + 2);
+                
+                if (startPage > 1) {
+                    paginationHTML += `<button onclick="changePage(1)" class="px-3 py-1 border rounded hover:bg-gray-100">1</button>`;
+                    if (startPage > 2) {
+                        paginationHTML += `<span class="px-2">...</span>`;
+                    }
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const isActive = i === currentPageNum;
+                    paginationHTML += `
+                        <button onclick="changePage(${i})" 
+                                class="px-3 py-1 border rounded ${isActive ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'}">
+                            ${i}
+                        </button>
+                    `;
+                }
+                
+                if (endPage < totalPagesNum) {
+                    if (endPage < totalPagesNum - 1) {
+                        paginationHTML += `<span class="px-2">...</span>`;
+                    }
+                    paginationHTML += `<button onclick="changePage(${totalPagesNum})" class="px-3 py-1 border rounded hover:bg-gray-100">${totalPagesNum}</button>`;
+                }
+                
+                // Next button
+                if (currentPageNum < totalPagesNum) {
+                    paginationHTML += `
+                        <button onclick="changePage(${currentPageNum + 1})" 
+                                class="px-3 py-1 border rounded hover:bg-gray-100">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    `;
+                }
+                
+                paginationControls.innerHTML = paginationHTML;
+            } else {
+                paginationControls.innerHTML = '';
+            }
+        }
+
+        function changePage(newPage) {
+            currentPage = newPage;
+            const searchTerm = document.getElementById('querySearch').value;
+            const category = document.getElementById('categoryFilter').value;
+            displayQueries(searchTerm, category);
+        }
+
+        function showQueryDetail(queryId) {
+            const query = globalData.queries[queryId];
+            const modal = document.getElementById('queryModal');
+            const modalContent = document.getElementById('modalContent');
+            const queryType = query.query_type || getQueryType(query.prompt_text || query.text || query.query || '');
+            
+            document.getElementById('modalQueryText').textContent = query.prompt_text || query.text || query.query || 'Query text not available';
+            document.getElementById('modalQueryMeta').innerHTML = 
+                `Query Set ${query.query_set_id} • ${query.category || 'Uncategorized'} • ${getQueryTypeBadge(queryType)}`;
+            
+            modalContent.innerHTML = '';
+            
+            // Add query metadata with type analysis
+            modalContent.innerHTML += `
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Category:</span>
+                            <span class="font-medium ml-2">${query.category || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Query Type:</span>
+                            <span class="ml-2">${getQueryTypeBadge(queryType)}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Price Range:</span>
+                            <span class="font-medium ml-2">
+                                ${query.price_range.min ? `$${query.price_range.min} - ` : ''}
+                                ${query.price_range.max ? `$${query.price_range.max}` : 'No limit'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 p-3 bg-blue-50 rounded text-sm">
+                        <p class="font-medium text-blue-800 mb-1">Query Analysis:</p>
+                        <p class="text-blue-700">
+                            ${queryType === 'search' ? 'Direct search-style query - likely to get consistent product recommendations' :
+                              queryType === 'conversational' ? 'Natural conversational query - may get more varied responses' :
+                              queryType === 'hybrid' ? 'Mix of search and conversational elements' :
+                              'Neutral query style'}
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            // Add responses by model with actual response text
+            Object.entries(query.responses_by_model).forEach(([modelName, data]) => {
+                const modelColor = modelName === 'Google AI Mode' ? 'blue' : 'green';
+                
+                modalContent.innerHTML += `
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold mb-3 text-${modelColor}-600">
+                            <i class="${modelName === 'Google AI Mode' ? 'fab fa-google' : 'fas fa-robot'} mr-2"></i>
+                            ${modelName}
+                        </h4>
+                        
+                        <!-- Links Summary -->
+                        ${data.links && data.links.length > 0 ? `
+                            <div class="mb-4 p-3 bg-indigo-50 rounded-lg">
+                                <p class="text-sm font-medium text-indigo-800 mb-2">
+                                    <i class="fas fa-link mr-1"></i>
+                                    Sources (${data.total_links} total, ${data.unique_domains.length} unique domains)
+                                </p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${data.unique_domains.slice(0, 10).map(domain => `
+                                        <span class="text-xs px-2 py-1 bg-white rounded-full text-indigo-700 border border-indigo-200">
+                                            ${domain}
+                                        </span>
+                                    `).join('')}
+                                    ${data.unique_domains.length > 10 ? `
+                                        <span class="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                                            +${data.unique_domains.length - 10} more
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-link mr-1"></i>
+                                    No external sources provided
+                                </p>
+                            </div>
+                        `}
+                        
+                        ${data.runs.map((runId, runIndex) => {
+                            // Get sample response for this run if available
+                            const sampleResponse = data.sample_responses ? 
+                                data.sample_responses.find(sr => sr.run_id === runId) :
+                                globalData.raw_data_samples
+                                    ?.find(s => s.query_id == queryId)
+                                    ?.responses.find(r => r.run_id == runId);
+                            
+                            const runProducts = data.products_found.filter(p => p.run_id === runId);
+                            
+                            return `
+                                <div class="mb-4 bg-gray-50 rounded-lg p-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h5 class="font-medium text-gray-700">Run ${runIndex + 1}</h5>
+                                        <span class="text-xs text-gray-500">Run ID: ${runId}</span>
+                                    </div>
+                                    
+                                    ${sampleResponse ? `
+                                        <div class="mb-3">
+                                            <p class="text-sm text-gray-600 mb-1">Response Preview:</p>
+                                            <div class="bg-white p-3 rounded border text-sm text-gray-700">
+                                                ${sampleResponse.answer_preview}
+                                            </div>
+                                            
+                                            ${sampleResponse.links && sampleResponse.links.length > 0 ? `
+                                                <div class="mt-2">
+                                                    <p class="text-xs text-gray-600 mb-1">Links in this response:</p>
+                                                    <div class="space-y-1">
+                                                        ${sampleResponse.links.slice(0, 3).map(link => `
+                                                            <div class="text-xs bg-gray-100 p-2 rounded">
+                                                                <a href="${link.url}" target="_blank" class="text-blue-600 hover:underline truncate block">
+                                                                    ${link.domain || link.url}
+                                                                </a>
+                                                            </div>
+                                                        `).join('')}
+                                                        ${sampleResponse.links.length > 3 ? `
+                                                            <p class="text-xs text-gray-500">...and ${sampleResponse.links.length - 3} more links</p>
+                                                        ` : ''}
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-2">Products (${runProducts.length}):</p>
+                                        <div class="space-y-2">
+                                            ${runProducts.map((product, index) => `
+                                                <div class="product-card ${modelName === 'Google AI Mode' ? 'google' : 'chatgpt'}">
+                                                    <div class="flex justify-between items-start">
+                                                        <div>
+                                                            <span class="font-medium">${product.rank}. ${product.name}</span>
+                                                            ${product.brand ? `<span class="text-gray-600 ml-2">by ${product.brand}</span>` : ''}
+                                                            ${product.confidence ? `
+                                                                <span class="text-xs text-gray-500 ml-2">
+                                                                    (${Math.round(product.confidence * 100)}% confidence)
+                                                                </span>
+                                                            ` : ''}
+                                                        </div>
+                                                        ${product.price ? `<span class="font-bold">$${product.price}</span>` : ''}
+                                                    </div>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeQueryModal() {
+            document.getElementById('queryModal').classList.add('hidden');
+        }
+
+        function populateInconsistencyExamples() {
+            const examplesDiv = document.getElementById('inconsistencyExamples');
+            
+            // Clear existing content
+            examplesDiv.innerHTML = '';
+            
+            // Debug: Check what properties are actually available
+            if (globalData?.queries) {
+                const sampleQuery = Object.entries(globalData.queries)[0];
+                console.log('Sample query object for inconsistency examples:', sampleQuery);
+                console.log('Query properties:', Object.keys(sampleQuery[1]));
+                console.log('Available text fields:', {
+                    prompt_text: sampleQuery[1].prompt_text,
+                    text: sampleQuery[1].text,
+                    query: sampleQuery[1].query,
+                    query_text: sampleQuery[1].query_text
+                });
+            }
+            
+            // Find queries with multiple runs and different products
+            const examples = [];
+            Object.entries(globalData.queries).forEach(([queryId, query]) => {
+                const googleData = query.responses_by_model['Google AI Mode'];
+                if (googleData && googleData.runs.length > 1) {
+                    // Check if products differ between runs
+                    const products = googleData.products_found.map(p => p.name);
+                    const uniqueProducts = new Set(products);
+                    if (uniqueProducts.size > 5) {
+                        examples.push({
+                            query: query.prompt_text || query.text || query.query || query.query_text || 'Query text not found',
+                            products: googleData.products_found.slice(0, 6),
+                            runCount: googleData.runs.length
+                        });
+                    }
+                }
+            });
+            
+            if (examples.length === 0) {
+                examplesDiv.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i class="fas fa-check-circle text-4xl text-green-500 mb-3"></i>
+                        <p>No significant inconsistencies found in the data.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            examples.slice(0, 3).forEach(example => {
+                examplesDiv.innerHTML += `
+                    <div class="border rounded-lg p-4 mb-4">
+                        <p class="font-medium text-gray-800 mb-3">"${example.query}"</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-2">Run 1 Products:</p>
+                                ${example.products.slice(0, 3).map((p, i) => `
+                                    <p class="text-sm">${i + 1}. ${p.name}</p>
+                                `).join('')}
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 mb-2">Run 2 Products:</p>
+                                ${example.products.slice(3, 6).map((p, i) => `
+                                    <p class="text-sm">${i + 1}. ${p.name || 'Different product'}</p>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <p class="text-xs text-red-600 mt-3">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Completely different recommendations for the same query
+                        </p>
+                    </div>
+                `;
+            });
+        }
+
+        function populateCitationsAnalysis() {
+            const googleData = globalData.source_analysis['Google AI Mode'];
+            const chatgptData = globalData.source_analysis['ChatGPT'];
+            
+            // Update statistics
+            if (googleData) {
+                document.getElementById('googleLinkCount').textContent = `${googleData.responses_with_sources} / ${googleData.total_responses}`;
+                document.getElementById('googleDomainCount').textContent = googleData.total_unique_domains;
+                document.getElementById('googleAvgLinks').textContent = googleData.avg_links_per_response.toFixed(2);
+            }
+            
+            if (chatgptData) {
+                document.getElementById('chatgptLinkCount').textContent = `${chatgptData.responses_with_sources} / ${chatgptData.total_responses}`;
+                document.getElementById('chatgptDomainCount').textContent = chatgptData.total_unique_domains;
+                document.getElementById('chatgptAvgLinks').textContent = chatgptData.avg_links_per_response.toFixed(2);
+                
+                // Update training data vs sources visualization
+                const trainingPercent = chatgptData.training_percentage || 
+                    ((chatgptData.total_responses - chatgptData.responses_with_sources) / chatgptData.total_responses * 100);
+                const sourcePercent = chatgptData.source_percentage || 
+                    (chatgptData.responses_with_sources / chatgptData.total_responses * 100);
+                
+                const chatgptTrainingPercentEl = document.getElementById('chatgptTrainingPercent');
+                const chatgptSourcePercentEl = document.getElementById('chatgptSourcePercent');
+                if (chatgptTrainingPercentEl) {
+                    chatgptTrainingPercentEl.textContent = `${trainingPercent.toFixed(1)}%`;
+                }
+                if (chatgptSourcePercentEl) {
+                    chatgptSourcePercentEl.textContent = `${sourcePercent.toFixed(1)}%`;
+                }
+                
+                // Update note based on the data
+                const sourceNote = document.getElementById('chatgptSourceNote');
+                if (sourceNote && trainingPercent > 60) {
+                    sourceNote.textContent = `ChatGPT relies heavily on training data (${trainingPercent.toFixed(0)}%) for product recommendations`;
+                }
+            }
+            
+            // Calculate comparison metrics
+            if (googleData && chatgptData) {
+                const googleCoverage = (googleData.responses_with_sources / googleData.total_responses) * 100;
+                const chatgptCoverage = (chatgptData.responses_with_sources / chatgptData.total_responses) * 100;
+                const coverageDiff = Math.abs(googleCoverage - chatgptCoverage).toFixed(1);
+                document.getElementById('linkCoverageDiff').textContent = `${coverageDiff}%`;
+                
+                // Find domain overlap
+                const googleDomains = new Set(Object.keys(googleData.top_sources));
+                const chatgptDomains = new Set(Object.keys(chatgptData.top_sources));
+                const overlap = [...googleDomains].filter(d => chatgptDomains.has(d)).length;
+                const overlapPercent = ((overlap / Math.min(googleDomains.size, chatgptDomains.size)) * 100).toFixed(1);
+                document.getElementById('domainOverlap').textContent = `${overlapPercent}%`;
+                
+                // Find most cited domain overall
+                const allDomains = {};
+                Object.entries(googleData.top_sources).forEach(([domain, count]) => {
+                    allDomains[domain] = (allDomains[domain] || 0) + count;
+                });
+                Object.entries(chatgptData.top_sources).forEach(([domain, count]) => {
+                    allDomains[domain] = (allDomains[domain] || 0) + count;
+                });
+                const mostCited = Object.entries(allDomains).sort((a, b) => b[1] - a[1])[0];
+                document.getElementById('mostCitedDomain').textContent = mostCited ? mostCited[0] : 'N/A';
+            }
+            
+            // Clear existing content before populating
+            const googleDomainsDiv = document.getElementById('googleTopDomains');
+            const chatgptDomainsDiv = document.getElementById('chatgptTopDomains');
+            googleDomainsDiv.innerHTML = '';
+            chatgptDomainsDiv.innerHTML = '';
+            
+            if (googleData && googleData.top_sources) {
+                Object.entries(googleData.top_sources)
+                    .slice(0, 10)
+                    .forEach(([domain, count], index) => {
+                        googleDomainsDiv.innerHTML += `
+                            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                                <span class="font-medium text-sm">${index + 1}. ${domain}</span>
+                                <span class="text-gray-600 text-sm">${count} citations</span>
+                            </div>
+                        `;
+                    });
+            }
+            
+            if (chatgptData && chatgptData.top_sources) {
+                Object.entries(chatgptData.top_sources)
+                    .slice(0, 10)
+                    .forEach(([domain, count], index) => {
+                        chatgptDomainsDiv.innerHTML += `
+                            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+                                <span class="font-medium text-sm">${index + 1}. ${domain}</span>
+                                <span class="text-gray-600 text-sm">${count} citations</span>
+                            </div>
+                        `;
+                    });
+            }
+            
+            // Initialize top domains chart
+            initializeTopDomainsChart();
+            
+            // Analyze links by query type
+            analyzeLinksByQueryType();
+        }
+        
+        function initializeTopDomainsChart() {
+            const ctx = document.getElementById('topDomainsChart').getContext('2d');
+            const googleData = globalData.source_analysis['Google AI Mode'];
+            const chatgptData = globalData.source_analysis['ChatGPT'];
+            
+            // Get top 5 domains from each
+            const googleTop = googleData ? Object.entries(googleData.top_sources).slice(0, 5) : [];
+            const chatgptTop = chatgptData ? Object.entries(chatgptData.top_sources).slice(0, 5) : [];
+            
+            // Combine and get unique domains
+            const allDomains = new Map();
+            googleTop.forEach(([domain, count]) => {
+                allDomains.set(domain, { google: count, chatgpt: 0 });
+            });
+            chatgptTop.forEach(([domain, count]) => {
+                if (allDomains.has(domain)) {
+                    allDomains.get(domain).chatgpt = count;
+                } else {
+                    allDomains.set(domain, { google: 0, chatgpt: count });
+                }
+            });
+            
+            const labels = Array.from(allDomains.keys());
+            const googleCounts = labels.map(d => allDomains.get(d).google);
+            const chatgptCounts = labels.map(d => allDomains.get(d).chatgpt);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Google AI Mode',
+                        data: googleCounts,
+                        backgroundColor: '#4285f4'
+                    }, {
+                        label: 'ChatGPT',
+                        data: chatgptCounts,
+                        backgroundColor: '#10a37f'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        function analyzeLinksByQueryType() {
+            const linksByType = {};
+            
+            // Analyze each query
+            Object.values(globalData.queries).forEach(query => {
+                const queryType = query.query_type || 'unknown';
+                
+                if (!linksByType[queryType]) {
+                    linksByType[queryType] = {
+                        google: { withLinks: 0, total: 0 },
+                        chatgpt: { withLinks: 0, total: 0 }
+                    };
+                }
+                
+                // Check Google responses
+                const googleResponses = query.responses_by_model['Google AI Mode'];
+                if (googleResponses) {
+                    linksByType[queryType].google.total += googleResponses.response_count;
+                    if (googleResponses.links && googleResponses.links.length > 0) {
+                        linksByType[queryType].google.withLinks += googleResponses.response_count;
+                    }
+                }
+                
+                // Check ChatGPT responses
+                const chatgptResponses = query.responses_by_model['ChatGPT'];
+                if (chatgptResponses) {
+                    linksByType[queryType].chatgpt.total += chatgptResponses.response_count;
+                    if (chatgptResponses.links && chatgptResponses.links.length > 0) {
+                        linksByType[queryType].chatgpt.withLinks += chatgptResponses.response_count;
+                    }
+                }
+            });
+            
+            // Clear and display results
+            const container = document.getElementById('linksByQueryType');
+            container.innerHTML = '';
+            
+            Object.entries(linksByType).forEach(([type, data]) => {
+                const googlePercent = data.google.total > 0 ? 
+                    ((data.google.withLinks / data.google.total) * 100).toFixed(1) : 0;
+                const chatgptPercent = data.chatgpt.total > 0 ? 
+                    ((data.chatgpt.withLinks / data.chatgpt.total) * 100).toFixed(1) : 0;
+                
+                container.innerHTML += `
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-3 capitalize">${type} Queries</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">Google AI Mode</p>
+                                <div class="flex items-center">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-blue-500 h-2 rounded-full" style="width: ${googlePercent}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">${googlePercent}%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1">ChatGPT</p>
+                                <div class="flex items-center">
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: ${chatgptPercent}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium">${chatgptPercent}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('querySearch');
+            const categoryFilter = document.getElementById('categoryFilter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    currentPage = 1; // Reset to first page on search
+                    displayQueries(e.target.value, categoryFilter.value);
+                });
+            }
+            
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', (e) => {
+                    currentPage = 1; // Reset to first page on filter
+                    displayQueries(searchInput.value, e.target.value);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
