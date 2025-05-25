@@ -142,7 +142,7 @@ AI systems increasingly influence what products people buy. Understanding their 
 ## 📚 Citation
 
 ```bibtex
-@dataset{amplifying2024aiproductbench,
+@dataset{amplifying2025aiproductbench,
   title={AI Product Bench: Consumer Products Dataset v1.0},
   author={Amplifying},
   year={2025},
