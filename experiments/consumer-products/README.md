@@ -23,7 +23,7 @@ The 33 core query sets are **informed by released Google Shopping and Amazon Sho
 The semantic variations were **synthetically generated via LLM but edited by humans** to ensure quality and true semantic equivalence.
 
 ### Response Collection
-All ChatGPT and Google AI Mode responses were **collected by hand via a user with Bay Area IP** (with some minor browser automation). We chose this manual approach over API calls because **we saw value in capturing the actual user experience** rather than sterile API responses.
+All ChatGPT and Google AI Mode responses were **collected on Chrome with Bay Area IP** (with some minor browser automation). We chose this manual approach over API calls because **we saw value in capturing the actual user experience** rather than sterile API responses.
 
 ### Ongoing Data Collection
 **We are always looking for more data** - additional query sets, new models, international perspectives, and temporal variations.
@@ -149,23 +149,7 @@ Each line contains a product object:
 
 ## Key Findings
 
-### Model Performance
-- **ChatGPT**: 97.5% product extraction rate, highly inconsistent (8.3% consistency)
-- **Google AI Mode**: 99.7% product extraction rate, moderately consistent (64.4% consistency)
-
-### Source Analysis
-- **Google AI Mode**: 99.7% responses include external sources
-- **ChatGPT**: 35.9% responses include external sources, 64.1% rely on training data
-
-### Brand Preferences
-- **ChatGPT Top Brands**: Sony, Google, Samsung, HP, Ninja
-- **Google AI Mode Top Brands**: Breville, Ninja, Samsung, Audio-Technica, Vitamix
-
-### Semantic Consistency
-Testing across semantically equivalent variations reveals significant differences in model behavior:
-- Models often recommend completely different products for the same intent
-- "Conversational" vs "search" query types can yield different results
-- Consistency varies dramatically by product category
+[https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt]
 
 ## Usage
 
