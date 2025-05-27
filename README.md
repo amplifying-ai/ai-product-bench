@@ -24,13 +24,12 @@ We asked Google AI Mode and ChatGPT the same 132 product questions, 3 times each
 
 ```
 Consistency Analysis:
-- ChatGPT changed its #1 pick 96.2% of the time
-- Google AI Mode maintained 64.4% consistency
-- Source citation rates: Google (99.7%) vs ChatGPT (35.9%)
+- ChatGPT and Google AI Mode have a 47.3% agreement rate. 
+- Output drift of ChatGPT varies depending on whether it is using search retrieval.
+- Business relationships play a role in ChatGPT's citation sources.
 ```
 
-[**Full analysis report →**](experiments/consumer-products/README.md) | [**Interactive dashboard →**](https://amplifying.ai/research/consumer-products)
-
+[**Analysis report →** [https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt]
 ## 📁 Repository Structure
 
 ```
