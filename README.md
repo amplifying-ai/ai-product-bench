@@ -73,7 +73,7 @@ To run the visualization dashboard:
 2. **Start a web server:**
    ```bash
    # Using http-server (install with: npm install -g http-server)
-   http-server experiments/consumer-products/tools/dashboard.html
+   http-server experiments/consumer-products/tools/
    
    # Or using Python's built-in server
    cd experiments/consumer-products/tools
