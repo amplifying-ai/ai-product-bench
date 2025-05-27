@@ -54,7 +54,7 @@ Consistency Analysis:
 │       │           ├── run_2.jsonl
 │       │           └── run_3.jsonl
 │       └── tools/
-│           └── dashboard.html     # Interactive visualization
+│           └─index.html     # Interactive visualization
 └── README.md                     # This file
 ```
 
