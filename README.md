@@ -29,7 +29,7 @@ Consistency Analysis:
 - Business relationships play a role in ChatGPT's citation sources.
 ```
 
-[**Analysis report →** [https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt]
+**Analysis report →** (https://amplifying.ai/blog/why-ai-product-recommendations-keep-changing-google-ai-mode-vs-chatgpt)
 ## 📁 Repository Structure
 
 ```
